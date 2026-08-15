@@ -91,14 +91,14 @@
     let markers = [];
     let infoWindow;
 
-    // Updated Data Structure: Days contain an array of 'places'
     const itinerary = [
       {
         date: "Nov 13",
         title: "Arrive in Tokyo & Shinjuku",
         places: [
           { title: "Hotel in Kabukicho", lat: 35.6958, lng: 139.7046, desc: "Our home base for Tokyo." },
-          { title: "Shinjuku Gyoen", lat: 35.6852, lng: 139.7100, desc: "Beautiful national garden just south of the station." },
+          { title: "Tokyo Metropolitan Government Building", lat: 35.6896, lng: 139.6921, desc: "Free observation deck for great city views." },
+          { title: "Conbini Snack Run", lat: 35.6940, lng: 139.7020, desc: "Hit the local Family Mart (Famichiki, Bongo Onigiri), 7-11 (Brulee Ice cream, Sandos), and Lawson (Mochi Puyo) near the hotel." },
           { title: "Golden Gai", lat: 35.6938, lng: 139.7046, desc: "Narrow alleys packed with tiny bars for evening drinks." }
         ]
       },
@@ -107,17 +107,25 @@
         title: "Shibuya & Harajuku",
         places: [
           { title: "Meiji Jingu Shrine", lat: 35.6764, lng: 139.6993, desc: "Major shrine surrounded by a massive forested park." },
-          { title: "Nintendo TOKYO & Pokémon Center", lat: 35.6622, lng: 139.6987, desc: "Located inside Shibuya PARCO. Great place to pick up Switch accessories and plushies." },
-          { title: "Shogun Burger Shinjuku", lat: 35.6946, lng: 139.7018, desc: "Incredible Wagyu beef burgers. (Remember to customize to remove raw red onions/tomatoes if desired!)" }
+          { title: "A Happy Pancake Omotesando", lat: 35.6655, lng: 139.7084, desc: "Famous spot for fluffy, jiggly Japanese soufflé pancakes." },
+          { title: "Nintendo TOKYO & Pokémon Center", lat: 35.6622, lng: 139.6987, desc: "Located inside Shibuya PARCO." },
+          { title: "Hikiniku to Come Shibuya", lat: 35.6606, lng: 139.6955, desc: "Incredible charcoal-grilled hamburger steaks served over fresh rice." },
+          { title: "MEGA Don Quijote Shibuya", lat: 35.6604, lng: 139.6980, desc: "Massive, multi-story discount store. Great for souvenirs and snacks." },
+          { title: "Shibuya Sky", lat: 35.6580, lng: 139.7021, desc: "Open-air observation deck overlooking the scramble crossing. (Book tickets in advance!)" }
         ]
       },
       {
         date: "Nov 15",
-        title: "Asakusa & Specialty Coffee",
+        title: "Tsukiji, Asakusa & Akihabara",
         places: [
-          { title: "Senso-ji Temple", lat: 35.7147, lng: 139.7967, desc: "Tokyo's oldest temple and the Nakamise shopping street." },
-          { title: "Glitch Coffee & Roasters", lat: 35.6931, lng: 139.7601, desc: "World-class specialty roaster. Excellent spot to try a light-roast Ethiopian single-origin pour over." },
-          { title: "Ueno Park", lat: 35.7140, lng: 139.7741, desc: "Large public park with museums and walking paths." }
+          { title: "Tsukiji Outer Market", lat: 35.6655, lng: 139.7707, desc: "Arrive early for street food, fresh seafood, and tamagoyaki." },
+          { title: "TeamLabs Planets", lat: 35.6499, lng: 139.7898, desc: "Immersive digital art museum. (Book tickets well in advance!)" },
+          { title: "Senso-ji Temple & Nakamise", lat: 35.7147, lng: 139.7967, desc: "Tokyo's oldest temple. Great place to find Curry Pan and Hokkaido Ice Cream." },
+          { title: "Imo Pipi Asakusa", lat: 35.7135, lng: 139.7944, desc: "Incredible baked sweet potato desserts topped with ice cream or brulee." },
+          { title: "Kappabashi Street", lat: 35.7153, lng: 139.7885, desc: "The Kitchen Town. Great for knives, ceramics, and plastic food models." },
+          { title: "Akihabara Electric Town", lat: 35.6983, lng: 139.7731, desc: "Anime, gaming, and electronics hub." },
+          { title: "CoCo Ichibanya Akihabara", lat: 35.6988, lng: 139.7744, desc: "Hearty, customizable Japanese curry." },
+          { title: "Kunugiya Udon", lat: 35.7001, lng: 139.7745, desc: "Excellent spot for authentic udon noodles." }
         ]
       },
       {
@@ -140,14 +148,15 @@
         title: "Higashiyama",
         places: [
           { title: "Kiyomizu-dera", lat: 34.9948, lng: 135.7850, desc: "Iconic wooden temple with a massive veranda." },
-          { title: "Kura Sushi Kyoto", lat: 34.9912, lng: 135.7588, desc: "Revolving sushi bar if you want a familiar chain while on the go." }
+          { title: "Kura Sushi Kyoto", lat: 34.9912, lng: 135.7588, desc: "Revolving sushi bar." }
         ]
       },
       {
         date: "Nov 19",
-        title: "Universal Studios Japan",
+        title: "Osaka Day Trip",
         places: [
-          { title: "Universal Studios Japan", lat: 34.6654, lng: 135.4323, desc: "Full day trip to Osaka for the theme park." }
+          { title: "Universal Studios Japan", lat: 34.6654, lng: 135.4323, desc: "Full day trip to Osaka for the theme park." },
+          { title: "Round 1 Stadium Sennichimae", lat: 34.6675, lng: 135.5028, desc: "Massive arcade, claw machines, and entertainment complex in Osaka." }
         ]
       },
       {
@@ -206,7 +215,7 @@
         const placesList = document.createElement('ul');
         placesList.className = 'places-list';
 
-        const dayBounds = new google.maps.LatLngBounds(); // To bound just this day's points
+        const dayBounds = new google.maps.LatLngBounds(); 
 
         // Loop through the places within the day
         day.places.forEach((place) => {
@@ -265,7 +274,7 @@
             dayCard.classList.add('active');
             map.fitBounds(dayBounds); // Zoom to this day's locations
             
-            // Adjust zoom if the day only has one place (so it doesn't zoom in uncomfortably close)
+            // Adjust zoom if the day only has one place
             if (day.places.length === 1) {
                setTimeout(() => map.setZoom(15), 50);
             }
