@@ -5,9 +5,6 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Japan Trip 2026</title>
   
-  <!-- Leaflet CSS -->
-  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
-  
   <style>
     body { margin: 0; padding: 0; display: flex; height: 100vh; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; }
     
@@ -55,21 +52,13 @@
   </div>
 
   <div id="map"></div>
-
-  <!-- Leaflet JS -->
-  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
   
   <script>
-    // Initialize the map (centered on Japan initially)
-    const map = L.map('map').setView([35.3, 137.5], 6);
+    let map;
+    let markers = [];
+    let infoWindow;
 
-    // Add map tiles (OpenStreetMap is free and doesn't require an API key)
-    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-      maxZoom: 19,
-      attribution: '© OpenStreetMap'
-    }).addTo(map);
-
-    // Itinerary Data with Coordinates
+    // Itinerary Data with Coordinates (Including Sanrio Puroland on Nov 16)
     const itinerary = [
       {
         date: "Nov 13",
@@ -91,9 +80,9 @@
       },
       {
         date: "Nov 16",
-        title: "Central Tokyo: Tsukiji & Ginza",
-        desc: "Tsukiji Outer Market for seafood and Ginza for shopping.",
-        lat: 35.6655, lng: 139.7707, zoom: 14
+        title: "Sanrio Puroland",
+        desc: "Take the train to Tama City to spend the day at Sanrio Puroland (Hello Kitty Land).",
+        lat: 35.6244, lng: 139.4291, zoom: 15
       },
       {
         date: "Nov 17",
@@ -133,38 +122,65 @@
       }
     ];
 
-    const sidebar = document.getElementById('itinerary-list');
-    const markers = [];
+    function initMap() {
+      // Initialize map centered on Japan
+      map = new google.maps.Map(document.getElementById("map"), {
+        center: { lat: 35.3, lng: 137.5 },
+        zoom: 6,
+        mapTypeControl: false,
+        streetViewControl: false
+      });
 
-    // Loop through the itinerary to add sidebar items and map markers
-    itinerary.forEach((day, index) => {
-      // Add Map Marker
-      const marker = L.marker([day.lat, day.lng]).addTo(map)
-        .bindPopup(`<b>${day.date}: ${day.title}</b><br>${day.desc}`);
-      markers.push(marker);
+      infoWindow = new google.maps.InfoWindow();
+      const bounds = new google.maps.LatLngBounds();
+      const sidebar = document.getElementById('itinerary-list');
 
-      // Add Sidebar Card
-      const card = document.createElement('div');
-      card.className = 'day-card';
-      card.innerHTML = `
-        <span class="date">${day.date}</span>
-        <h3>${day.title}</h3>
-        <p>${day.desc}</p>
-      `;
-      
-      // When a card is clicked, zoom the map to that location and open the popup
-      card.onclick = () => {
-        map.flyTo([day.lat, day.lng], day.zoom, { duration: 1.5 });
-        marker.openPopup();
-      };
-      
-      sidebar.appendChild(card);
-    });
+      // Loop through itinerary to create markers and sidebar items
+      itinerary.forEach((day, index) => {
+        const position = { lat: day.lat, lng: day.lng };
+        
+        // Add marker to map
+        const marker = new google.maps.Marker({
+          position: position,
+          map: map,
+          title: day.title
+        });
+        
+        bounds.extend(position);
+        markers.push(marker);
 
-    // Automatically zoom to the bounds of all markers once they are loaded
-    const group = new L.featureGroup(markers);
-    map.fitBounds(group.getBounds(), { padding: [50, 50] });
+        // Map marker click event
+        marker.addListener("click", () => {
+          infoWindow.setContent(`<b>${day.date}: ${day.title}</b><br>${day.desc}`);
+          infoWindow.open(map, marker);
+        });
 
+        // Add Sidebar Card
+        const card = document.createElement('div');
+        card.className = 'day-card';
+        card.innerHTML = `
+          <span class="date">${day.date}</span>
+          <h3>${day.title}</h3>
+          <p>${day.desc}</p>
+        `;
+        
+        // Sidebar click event
+        card.onclick = () => {
+          map.panTo(position);
+          map.setZoom(day.zoom);
+          infoWindow.setContent(`<b>${day.date}: ${day.title}</b><br>${day.desc}`);
+          infoWindow.open(map, marker);
+        };
+        
+        sidebar.appendChild(card);
+      });
+
+      // Fit map to show all markers
+      map.fitBounds(bounds);
+    }
   </script>
+  
+  <!-- IMPORTANT: Replace YOUR_GOOGLE_MAPS_API_KEY_HERE with your actual API key -->
+  <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCEiPAdSz2KKmF44XVWrkzC-eVV1MNvMfM&callback=initMap" async defer></script>
 </body>
 </html>
