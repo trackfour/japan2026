@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Japan Trip 2026</title>
+  
+  <!-- Leaflet CSS -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  
+  <style>
+    body { margin: 0; padding: 0; display: flex; height: 100vh; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; }
+    
+    #sidebar {
+      width: 350px;
+      background: #f8f9fa;
+      border-right: 1px solid #ddd;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+    }
+    
+    .header { padding: 20px; background: #fff; border-bottom: 1px solid #ddd; }
+    .header h1 { margin: 0; font-size: 24px; color: #d32f2f; }
+    .header p { margin: 5px 0 0 0; color: #555; font-size: 14px; }
+    
+    .day-card {
+      padding: 15px 20px;
+      border-bottom: 1px solid #eee;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+    .day-card:hover { background: #fff; }
+    .day-card h3 { margin: 0 0 5px 0; font-size: 16px; color: #333; }
+    .day-card p { margin: 0; font-size: 13px; color: #666; }
+    .day-card .date { font-size: 12px; color: #d32f2f; font-weight: bold; margin-bottom: 3px; display: block; }
+    
+    #map { flex-grow: 1; height: 100%; }
+
+    @media (max-width: 768px) {
+      body { flex-direction: column; }
+      #sidebar { width: 100%; height: 40vh; }
+      #map { height: 60vh; }
+    }
+  </style>
+</head>
+<body>
+
+  <div id="sidebar">
+    <div class="header">
+      <h1>Japan Itinerary</h1>
+      <p>Tokyo & Kyoto • Nov 13 - 22</p>
+    </div>
+    <div id="itinerary-list"></div>
+  </div>
+
+  <div id="map"></div>
+
+  <!-- Leaflet JS -->
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  
+  <script>
+    // Initialize the map (centered on Japan initially)
+    const map = L.map('map').setView([35.3, 137.5], 6);
+
+    // Add map tiles (OpenStreetMap is free and doesn't require an API key)
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      maxZoom: 19,
+      attribution: '© OpenStreetMap'
+    }).addTo(map);
+
+    // Itinerary Data with Coordinates
+    const itinerary = [
+      {
+        date: "Nov 13",
+        title: "Arrive in Tokyo & Local Area",
+        desc: "Check into hotel at Kabukicho. Explore Shinjuku Gyoen and Golden Gai.",
+        lat: 35.6958, lng: 139.7046, zoom: 15
+      },
+      {
+        date: "Nov 14",
+        title: "West Tokyo: Shibuya & Harajuku",
+        desc: "Meiji Jingu Shrine, Omotesando, and the Shibuya Scramble Crossing.",
+        lat: 35.6620, lng: 139.7038, zoom: 14
+      },
+      {
+        date: "Nov 15",
+        title: "East Tokyo: Asakusa & Ueno",
+        desc: "Senso-ji Temple and Ueno Park/Museums.",
+        lat: 35.7147, lng: 139.7967, zoom: 14
+      },
+      {
+        date: "Nov 16",
+        title: "Central Tokyo: Tsukiji & Ginza",
+        desc: "Tsukiji Outer Market for seafood and Ginza for shopping.",
+        lat: 35.6655, lng: 139.7707, zoom: 14
+      },
+      {
+        date: "Nov 17",
+        title: "Transit to Kyoto & Downtown",
+        desc: "Shinkansen to Kyoto. Check in at Shimogyo Ward. Explore Nishiki Market.",
+        lat: 35.0045, lng: 135.7632, zoom: 14
+      },
+      {
+        date: "Nov 18",
+        title: "Eastern Kyoto: Higashiyama",
+        desc: "Kiyomizu-dera, Yasaka Shrine, and the historic streets of Gion.",
+        lat: 34.9948, lng: 135.7850, zoom: 15
+      },
+      {
+        date: "Nov 19",
+        title: "Day Trip: Universal Studios Japan",
+        desc: "Train to Osaka for a full day at USJ.",
+        lat: 34.6654, lng: 135.4323, zoom: 15
+      },
+      {
+        date: "Nov 20",
+        title: "Western Kyoto: Arashiyama",
+        desc: "Bamboo Grove, Tenryu-ji Temple, and the Monkey Park.",
+        lat: 35.0093, lng: 135.6670, zoom: 14
+      },
+      {
+        date: "Nov 21",
+        title: "Southern Kyoto: Fushimi Inari",
+        desc: "Early morning hike through the thousands of vermilion gates.",
+        lat: 34.9671, lng: 135.7726, zoom: 15
+      },
+      {
+        date: "Nov 22",
+        title: "Depart from Osaka",
+        desc: "Travel to the airport (KIX/ITM) and fly home.",
+        lat: 34.4320, lng: 135.2304, zoom: 11
+      }
+    ];
+
+    const sidebar = document.getElementById('itinerary-list');
+    const markers = [];
+
+    // Loop through the itinerary to add sidebar items and map markers
+    itinerary.forEach((day, index) => {
+      // Add Map Marker
+      const marker = L.marker([day.lat, day.lng]).addTo(map)
+        .bindPopup(`<b>${day.date}: ${day.title}</b><br>${day.desc}`);
+      markers.push(marker);
+
+      // Add Sidebar Card
+      const card = document.createElement('div');
+      card.className = 'day-card';
+      card.innerHTML = `
+        <span class="date">${day.date}</span>
+        <h3>${day.title}</h3>
+        <p>${day.desc}</p>
+      `;
+      
+      // When a card is clicked, zoom the map to that location and open the popup
+      card.onclick = () => {
+        map.flyTo([day.lat, day.lng], day.zoom, { duration: 1.5 });
+        marker.openPopup();
+      };
+      
+      sidebar.appendChild(card);
+    });
+
+    // Automatically zoom to the bounds of all markers once they are loaded
+    const group = new L.featureGroup(markers);
+    map.fitBounds(group.getBounds(), { padding: [50, 50] });
+
+  </script>
+</body>
+</html>
