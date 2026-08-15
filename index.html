@@ -6,37 +6,70 @@
   <title>Japan Trip 2026</title>
   
   <style>
-    body { margin: 0; padding: 0; display: flex; height: 100vh; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; }
+    body { margin: 0; padding: 0; display: flex; height: 100vh; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; background: #f4f6f8; }
     
     #sidebar {
-      width: 350px;
-      background: #f8f9fa;
+      width: 380px;
+      background: #fff;
       border-right: 1px solid #ddd;
       overflow-y: auto;
       display: flex;
       flex-direction: column;
+      box-shadow: 2px 0 5px rgba(0,0,0,0.05);
+      z-index: 10;
     }
     
-    .header { padding: 20px; background: #fff; border-bottom: 1px solid #ddd; }
+    .header { padding: 20px; background: #fff; border-bottom: 1px solid #eee; position: sticky; top: 0; z-index: 20; }
     .header h1 { margin: 0; font-size: 24px; color: #d32f2f; }
     .header p { margin: 5px 0 0 0; color: #555; font-size: 14px; }
     
     .day-card {
-      padding: 15px 20px;
       border-bottom: 1px solid #eee;
+    }
+    
+    .day-header {
+      padding: 15px 20px;
       cursor: pointer;
       transition: background 0.2s;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
     }
-    .day-card:hover { background: #fff; }
-    .day-card h3 { margin: 0 0 5px 0; font-size: 16px; color: #333; }
-    .day-card p { margin: 0; font-size: 13px; color: #666; }
-    .day-card .date { font-size: 12px; color: #d32f2f; font-weight: bold; margin-bottom: 3px; display: block; }
+    .day-header:hover { background: #f9f9f9; }
+    .day-info h3 { margin: 0 0 4px 0; font-size: 16px; color: #222; }
+    .day-info .date { font-size: 12px; color: #d32f2f; font-weight: bold; display: block; margin-bottom: 2px; }
+    .dropdown-icon { font-size: 12px; color: #888; transition: transform 0.3s; }
+    
+    /* Active State for Accordion */
+    .day-card.active .day-header { background: #fdf2f2; border-left: 4px solid #d32f2f; padding-left: 16px; }
+    .day-card.active .dropdown-icon { transform: rotate(180deg); }
+    
+    .places-list {
+      display: none;
+      background: #fafafa;
+      padding: 0;
+      margin: 0;
+      list-style: none;
+      border-top: 1px solid #eee;
+    }
+    .day-card.active .places-list { display: block; }
+    
+    .place-item {
+      padding: 12px 20px 12px 40px;
+      cursor: pointer;
+      border-bottom: 1px solid #eee;
+      transition: background 0.2s;
+    }
+    .place-item:last-child { border-bottom: none; }
+    .place-item:hover { background: #f0f0f0; }
+    .place-item h4 { margin: 0 0 3px 0; font-size: 14px; color: #333; }
+    .place-item p { margin: 0; font-size: 12px; color: #666; line-height: 1.4; }
     
     #map { flex-grow: 1; height: 100%; }
 
     @media (max-width: 768px) {
       body { flex-direction: column; }
-      #sidebar { width: 100%; height: 40vh; }
+      #sidebar { width: 100%; height: 40vh; border-right: none; border-bottom: 1px solid #ddd; }
       #map { height: 60vh; }
     }
   </style>
@@ -58,72 +91,90 @@
     let markers = [];
     let infoWindow;
 
-    // Itinerary Data with Coordinates (Including Sanrio Puroland on Nov 16)
+    // Updated Data Structure: Days contain an array of 'places'
     const itinerary = [
       {
         date: "Nov 13",
-        title: "Arrive in Tokyo & Local Area",
-        desc: "Check into hotel at Kabukicho. Explore Shinjuku Gyoen and Golden Gai.",
-        lat: 35.6958, lng: 139.7046, zoom: 15
+        title: "Arrive in Tokyo & Shinjuku",
+        places: [
+          { title: "Hotel in Kabukicho", lat: 35.6958, lng: 139.7046, desc: "Our home base for Tokyo." },
+          { title: "Shinjuku Gyoen", lat: 35.6852, lng: 139.7100, desc: "Beautiful national garden just south of the station." },
+          { title: "Golden Gai", lat: 35.6938, lng: 139.7046, desc: "Narrow alleys packed with tiny bars for evening drinks." }
+        ]
       },
       {
         date: "Nov 14",
-        title: "West Tokyo: Shibuya & Harajuku",
-        desc: "Meiji Jingu Shrine, Omotesando, and the Shibuya Scramble Crossing.",
-        lat: 35.6620, lng: 139.7038, zoom: 14
+        title: "Shibuya & Harajuku",
+        places: [
+          { title: "Meiji Jingu Shrine", lat: 35.6764, lng: 139.6993, desc: "Major shrine surrounded by a massive forested park." },
+          { title: "Nintendo TOKYO & Pokémon Center", lat: 35.6622, lng: 139.6987, desc: "Located inside Shibuya PARCO. Great place to pick up Switch accessories and plushies." },
+          { title: "Shogun Burger Shinjuku", lat: 35.6946, lng: 139.7018, desc: "Incredible Wagyu beef burgers. (Remember to customize to remove raw red onions/tomatoes if desired!)" }
+        ]
       },
       {
         date: "Nov 15",
-        title: "East Tokyo: Asakusa & Ueno",
-        desc: "Senso-ji Temple and Ueno Park/Museums.",
-        lat: 35.7147, lng: 139.7967, zoom: 14
+        title: "Asakusa & Specialty Coffee",
+        places: [
+          { title: "Senso-ji Temple", lat: 35.7147, lng: 139.7967, desc: "Tokyo's oldest temple and the Nakamise shopping street." },
+          { title: "Glitch Coffee & Roasters", lat: 35.6931, lng: 139.7601, desc: "World-class specialty roaster. Excellent spot to try a light-roast Ethiopian single-origin pour over." },
+          { title: "Ueno Park", lat: 35.7140, lng: 139.7741, desc: "Large public park with museums and walking paths." }
+        ]
       },
       {
         date: "Nov 16",
         title: "Sanrio Puroland",
-        desc: "Take the train to Tama City to spend the day at Sanrio Puroland (Hello Kitty Land).",
-        lat: 35.6244, lng: 139.4291, zoom: 15
+        places: [
+          { title: "Sanrio Puroland", lat: 35.6244, lng: 139.4291, desc: "Indoor theme park in Tama City. (About 45 mins from Shinjuku)." }
+        ]
       },
       {
         date: "Nov 17",
         title: "Transit to Kyoto & Downtown",
-        desc: "Shinkansen to Kyoto. Check in at Shimogyo Ward. Explore Nishiki Market.",
-        lat: 35.0045, lng: 135.7632, zoom: 14
+        places: [
+          { title: "Hotel in Shimogyo Ward", lat: 35.0045, lng: 135.7632, desc: "Check-in at our Kyoto home base." },
+          { title: "Nishiki Market", lat: 35.0050, lng: 135.7649, desc: "Famous narrow street with over 100 food stalls." }
+        ]
       },
       {
         date: "Nov 18",
-        title: "Eastern Kyoto: Higashiyama",
-        desc: "Kiyomizu-dera, Yasaka Shrine, and the historic streets of Gion.",
-        lat: 34.9948, lng: 135.7850, zoom: 15
+        title: "Higashiyama",
+        places: [
+          { title: "Kiyomizu-dera", lat: 34.9948, lng: 135.7850, desc: "Iconic wooden temple with a massive veranda." },
+          { title: "Kura Sushi Kyoto", lat: 34.9912, lng: 135.7588, desc: "Revolving sushi bar if you want a familiar chain while on the go." }
+        ]
       },
       {
         date: "Nov 19",
-        title: "Day Trip: Universal Studios Japan",
-        desc: "Train to Osaka for a full day at USJ.",
-        lat: 34.6654, lng: 135.4323, zoom: 15
+        title: "Universal Studios Japan",
+        places: [
+          { title: "Universal Studios Japan", lat: 34.6654, lng: 135.4323, desc: "Full day trip to Osaka for the theme park." }
+        ]
       },
       {
         date: "Nov 20",
-        title: "Western Kyoto: Arashiyama",
-        desc: "Bamboo Grove, Tenryu-ji Temple, and the Monkey Park.",
-        lat: 35.0093, lng: 135.6670, zoom: 14
+        title: "Arashiyama",
+        places: [
+          { title: "Bamboo Grove", lat: 35.0093, lng: 135.6670, desc: "Famous towering bamboo path." },
+          { title: "Tenryu-ji Temple", lat: 35.0084, lng: 135.6737, desc: "Zen temple with beautiful gardens." }
+        ]
       },
       {
         date: "Nov 21",
-        title: "Southern Kyoto: Fushimi Inari",
-        desc: "Early morning hike through the thousands of vermilion gates.",
-        lat: 34.9671, lng: 135.7726, zoom: 15
+        title: "Fushimi Inari",
+        places: [
+          { title: "Fushimi Inari Taisha", lat: 34.9671, lng: 135.7726, desc: "Thousands of vermilion torii gates." }
+        ]
       },
       {
         date: "Nov 22",
         title: "Depart from Osaka",
-        desc: "Travel to the airport (KIX/ITM) and fly home.",
-        lat: 34.4320, lng: 135.2304, zoom: 11
+        places: [
+          { title: "Kansai International Airport (KIX)", lat: 34.4320, lng: 135.2304, desc: "Fly home." }
+        ]
       }
     ];
 
     function initMap() {
-      // Initialize map centered on Japan
       map = new google.maps.Map(document.getElementById("map"), {
         center: { lat: 35.3, lng: 137.5 },
         zoom: 6,
@@ -132,55 +183,105 @@
       });
 
       infoWindow = new google.maps.InfoWindow();
-      const bounds = new google.maps.LatLngBounds();
+      const globalBounds = new google.maps.LatLngBounds();
       const sidebar = document.getElementById('itinerary-list');
 
-      // Loop through itinerary to create markers and sidebar items
-      itinerary.forEach((day, index) => {
-        const position = { lat: day.lat, lng: day.lng };
+      // Loop through each Day
+      itinerary.forEach((day) => {
+        const dayCard = document.createElement('div');
+        dayCard.className = 'day-card';
         
-        // Add marker to map
-        const marker = new google.maps.Marker({
-          position: position,
-          map: map,
-          title: day.title
-        });
-        
-        bounds.extend(position);
-        markers.push(marker);
-
-        // Map marker click event
-        marker.addListener("click", () => {
-          infoWindow.setContent(`<b>${day.date}: ${day.title}</b><br>${day.desc}`);
-          infoWindow.open(map, marker);
-        });
-
-        // Add Sidebar Card
-        const card = document.createElement('div');
-        card.className = 'day-card';
-        card.innerHTML = `
-          <span class="date">${day.date}</span>
-          <h3>${day.title}</h3>
-          <p>${day.desc}</p>
+        // Create the clickable header for the day
+        const dayHeader = document.createElement('div');
+        dayHeader.className = 'day-header';
+        dayHeader.innerHTML = `
+          <div class="day-info">
+            <span class="date">${day.date}</span>
+            <h3>${day.title}</h3>
+          </div>
+          <div class="dropdown-icon">▼</div>
         `;
-        
-        // Sidebar click event
-        card.onclick = () => {
-          map.panTo(position);
-          map.setZoom(day.zoom);
-          infoWindow.setContent(`<b>${day.date}: ${day.title}</b><br>${day.desc}`);
-          infoWindow.open(map, marker);
+
+        // Create the container for the specific places
+        const placesList = document.createElement('ul');
+        placesList.className = 'places-list';
+
+        const dayBounds = new google.maps.LatLngBounds(); // To bound just this day's points
+
+        // Loop through the places within the day
+        day.places.forEach((place) => {
+          const position = { lat: place.lat, lng: place.lng };
+          
+          // Add marker to map
+          const marker = new google.maps.Marker({
+            position: position,
+            map: map,
+            title: place.title
+          });
+          
+          globalBounds.extend(position);
+          dayBounds.extend(position);
+          markers.push(marker);
+
+          // Map marker click event
+          marker.addListener("click", () => {
+            infoWindow.setContent(`<b>${place.title}</b><br>${place.desc}`);
+            infoWindow.open(map, marker);
+          });
+
+          // Add Place Item to the dropdown list
+          const placeItem = document.createElement('li');
+          placeItem.className = 'place-item';
+          placeItem.innerHTML = `
+            <h4>${place.title}</h4>
+            <p>${place.desc}</p>
+          `;
+          
+          // Click event for a specific place in the sidebar
+          placeItem.onclick = (e) => {
+            e.stopPropagation(); // Prevents the day accordion from toggling when clicking a place
+            map.panTo(position);
+            map.setZoom(16);
+            infoWindow.setContent(`<b>${place.title}</b><br>${place.desc}`);
+            infoWindow.open(map, marker);
+          };
+          
+          placesList.appendChild(placeItem);
+        });
+
+        // Click event to toggle the Day accordion
+        dayHeader.onclick = () => {
+          // Close other open days
+          document.querySelectorAll('.day-card').forEach(card => {
+            if (card !== dayCard) card.classList.remove('active');
+          });
+          
+          // Toggle this day
+          const isActive = dayCard.classList.contains('active');
+          if (isActive) {
+            dayCard.classList.remove('active');
+            map.fitBounds(globalBounds); // Zoom back out if closing
+          } else {
+            dayCard.classList.add('active');
+            map.fitBounds(dayBounds); // Zoom to this day's locations
+            
+            // Adjust zoom if the day only has one place (so it doesn't zoom in uncomfortably close)
+            if (day.places.length === 1) {
+               setTimeout(() => map.setZoom(15), 50);
+            }
+          }
         };
-        
-        sidebar.appendChild(card);
+
+        dayCard.appendChild(dayHeader);
+        dayCard.appendChild(placesList);
+        sidebar.appendChild(dayCard);
       });
 
-      // Fit map to show all markers
-      map.fitBounds(bounds);
+      // Fit map to show all markers initially
+      map.fitBounds(globalBounds);
     }
   </script>
   
-  <!-- IMPORTANT: Replace YOUR_GOOGLE_MAPS_API_KEY_HERE with your actual API key -->
   <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCEiPAdSz2KKmF44XVWrkzC-eVV1MNvMfM&callback=initMap" async defer></script>
 </body>
 </html>
