@@ -23,9 +23,7 @@
     .header h1 { margin: 0; font-size: 24px; color: #d32f2f; }
     .header p { margin: 5px 0 0 0; color: #555; font-size: 14px; }
     
-    .day-card {
-      border-bottom: 1px solid #eee;
-    }
+    .day-card { border-bottom: 1px solid #eee; }
     
     .day-header {
       padding: 15px 20px;
@@ -65,6 +63,17 @@
     .place-item h4 { margin: 0 0 3px 0; font-size: 14px; color: #333; }
     .place-item p { margin: 0; font-size: 12px; color: #666; line-height: 1.4; }
     
+    /* New Transit Info Styles */
+    .travel-info {
+      display: none;
+      padding: 15px 20px;
+      background: #eef5fb;
+      border-top: 1px solid #dce8f3;
+    }
+    .travel-info h4 { margin: 0 0 5px 0; font-size: 13px; color: #0056b3; text-transform: uppercase; letter-spacing: 0.5px; }
+    .travel-info p { margin: 0; font-size: 13px; color: #444; line-height: 1.5; }
+    .day-card.active .travel-info { display: block; }
+
     #map { flex-grow: 1; height: 100%; }
 
     @media (max-width: 768px) {
@@ -95,34 +104,37 @@
       {
         date: "Nov 13",
         title: "Arrive in Tokyo & Shinjuku",
+        travel: "When arriving at Shinjuku Station, follow signs for the <b>East Exit (Higashi-guchi)</b>. It is the shortest and most direct walk to Kabukicho and will keep you from getting lost in the massive station complex.",
         places: [
           { title: "Hotel in Kabukicho", lat: 35.6958, lng: 139.7046, desc: "Our home base for Tokyo." },
           { title: "Tokyo Metropolitan Government Building", lat: 35.6896, lng: 139.6921, desc: "Free observation deck for great city views." },
-          { title: "Conbini Snack Run", lat: 35.6940, lng: 139.7020, desc: "Hit the local Family Mart (Famichiki, Bongo Onigiri), 7-11 (Brulee Ice cream, Sandos), and Lawson (Mochi Puyo) near the hotel." },
+          { title: "Conbini Snack Run", lat: 35.6940, lng: 139.7020, desc: "Hit the local Family Mart, 7-11, and Lawson near the hotel." },
           { title: "Golden Gai", lat: 35.6938, lng: 139.7046, desc: "Narrow alleys packed with tiny bars for evening drinks." }
         ]
       },
       {
         date: "Nov 14",
         title: "Shibuya & Harajuku",
+        travel: "Take the <b>JR Yamanote Line</b> south. Get off at <b>Harajuku Station (Omotesando Exit)</b> for Meiji Jingu and the pancake run. Later, ride one stop south to <b>Shibuya Station (Hachiko Exit)</b> for the crossing, Nintendo Tokyo, and Don Quijote.",
         places: [
           { title: "Meiji Jingu Shrine", lat: 35.6764, lng: 139.6993, desc: "Major shrine surrounded by a massive forested park." },
           { title: "A Happy Pancake Omotesando", lat: 35.6655, lng: 139.7084, desc: "Famous spot for fluffy, jiggly Japanese soufflé pancakes." },
           { title: "Nintendo TOKYO & Pokémon Center", lat: 35.6622, lng: 139.6987, desc: "Located inside Shibuya PARCO." },
           { title: "Hikiniku to Come Shibuya", lat: 35.6606, lng: 139.6955, desc: "Incredible charcoal-grilled hamburger steaks served over fresh rice." },
-          { title: "MEGA Don Quijote Shibuya", lat: 35.6604, lng: 139.6980, desc: "Massive, multi-story discount store. Great for souvenirs and snacks." },
-          { title: "Shibuya Sky", lat: 35.6580, lng: 139.7021, desc: "Open-air observation deck overlooking the scramble crossing. (Book tickets in advance!)" }
+          { title: "MEGA Don Quijote Shibuya", lat: 35.6604, lng: 139.6980, desc: "Massive, multi-story discount store." },
+          { title: "Shibuya Sky", lat: 35.6580, lng: 139.7021, desc: "Open-air observation deck overlooking the scramble crossing." }
         ]
       },
       {
         date: "Nov 15",
         title: "Tsukiji, Asakusa & Akihabara",
+        travel: "Take the <b>Toei Oedo Line</b> from Shinjuku-nishiguchi direct to <b>Tsukijishijo Station (Exit A1)</b>. To get to Asakusa, take the Hibiya line to Higashi-Ginza and swap to the Asakusa Line. Finally, take the Ginza line to Ueno and transfer to the Yamanote line to hit Akihabara <b>(Electric Town Exit)</b>.",
         places: [
-          { title: "Tsukiji Outer Market", lat: 35.6655, lng: 139.7707, desc: "Arrive early for street food, fresh seafood, and tamagoyaki." },
-          { title: "TeamLabs Planets", lat: 35.6499, lng: 139.7898, desc: "Immersive digital art museum. (Book tickets well in advance!)" },
-          { title: "Senso-ji Temple & Nakamise", lat: 35.7147, lng: 139.7967, desc: "Tokyo's oldest temple. Great place to find Curry Pan and Hokkaido Ice Cream." },
-          { title: "Imo Pipi Asakusa", lat: 35.7135, lng: 139.7944, desc: "Incredible baked sweet potato desserts topped with ice cream or brulee." },
-          { title: "Kappabashi Street", lat: 35.7153, lng: 139.7885, desc: "The Kitchen Town. Great for knives, ceramics, and plastic food models." },
+          { title: "Tsukiji Outer Market", lat: 35.6655, lng: 139.7707, desc: "Arrive early for street food and fresh seafood." },
+          { title: "TeamLabs Planets", lat: 35.6499, lng: 139.7898, desc: "Immersive digital art museum." },
+          { title: "Senso-ji Temple & Nakamise", lat: 35.7147, lng: 139.7967, desc: "Tokyo's oldest temple. Great place for Curry Pan and Hokkaido Ice Cream." },
+          { title: "Imo Pipi Asakusa", lat: 35.7135, lng: 139.7944, desc: "Baked sweet potato desserts." },
+          { title: "Kappabashi Street", lat: 35.7153, lng: 139.7885, desc: "The Kitchen Town. Great for knives and ceramics." },
           { title: "Akihabara Electric Town", lat: 35.6983, lng: 139.7731, desc: "Anime, gaming, and electronics hub." },
           { title: "CoCo Ichibanya Akihabara", lat: 35.6988, lng: 139.7744, desc: "Hearty, customizable Japanese curry." },
           { title: "Kunugiya Udon", lat: 35.7001, lng: 139.7745, desc: "Excellent spot for authentic udon noodles." }
@@ -131,13 +143,15 @@
       {
         date: "Nov 16",
         title: "Sanrio Puroland",
+        travel: "Head to <b>Keio Shinjuku Station</b> (connected to the main station but slightly southwest) and take the <b>Keio Line</b> bound for Hashimoto. Get off at <b>Keio-tama-center Station</b>. Puroland is a 5-minute walk straight south from the exit.",
         places: [
-          { title: "Sanrio Puroland", lat: 35.6244, lng: 139.4291, desc: "Indoor theme park in Tama City. (About 45 mins from Shinjuku)." }
+          { title: "Sanrio Puroland", lat: 35.6244, lng: 139.4291, desc: "Indoor theme park in Tama City." }
         ]
       },
       {
         date: "Nov 17",
         title: "Transit to Kyoto & Downtown",
+        travel: "Take the JR Chuo Line from Shinjuku to Tokyo Station to catch the Tokaido Shinkansen. You can use your smart-EX app to seamlessly manage and scan your Shinkansen tickets. Disembark at Kyoto Station and hop on the <b>Karasuma Subway Line</b> to reach the Shimogyo Ward area.",
         places: [
           { title: "Hotel in Shimogyo Ward", lat: 35.0045, lng: 135.7632, desc: "Check-in at our Kyoto home base." },
           { title: "Nishiki Market", lat: 35.0050, lng: 135.7649, desc: "Famous narrow street with over 100 food stalls." }
@@ -146,6 +160,7 @@
       {
         date: "Nov 18",
         title: "Higashiyama",
+        travel: "Kyoto is highly bus-dependent. From the downtown/Shimogyo area, hop on <b>Bus 207 or 86</b> toward Kiyomizu-michi. Alternatively, take the <b>Keihan Main Line</b> to Kiyomizu-Gojo Station and enjoy the uphill walk to the temple district.",
         places: [
           { title: "Kiyomizu-dera", lat: 34.9948, lng: 135.7850, desc: "Iconic wooden temple with a massive veranda." },
           { title: "Kura Sushi Kyoto", lat: 34.9912, lng: 135.7588, desc: "Revolving sushi bar." }
@@ -154,14 +169,16 @@
       {
         date: "Nov 19",
         title: "Osaka Day Trip",
+        travel: "From Kyoto Station, take the <b>JR Kyoto Line</b> to Osaka Station. Transfer to the <b>Osaka Loop Line</b> to Nishikujo, then swap to the <b>JR Yumesaki Line</b> to Universal City Station. For Round 1 later, take the Hanshin Namba Line down to Osaka Namba.",
         places: [
           { title: "Universal Studios Japan", lat: 34.6654, lng: 135.4323, desc: "Full day trip to Osaka for the theme park." },
-          { title: "Round 1 Stadium Sennichimae", lat: 34.6675, lng: 135.5028, desc: "Massive arcade, claw machines, and entertainment complex in Osaka." }
+          { title: "Round 1 Stadium Sennichimae", lat: 34.6675, lng: 135.5028, desc: "Massive arcade complex near Namba." }
         ]
       },
       {
         date: "Nov 20",
         title: "Arashiyama",
+        travel: "Take the <b>JR Sagano Line (San-in Line)</b> directly from Kyoto Station to <b>Saga-Arashiyama Station</b>. It takes about 15 minutes. The bamboo grove is a 10-minute walk west from the station doors.",
         places: [
           { title: "Bamboo Grove", lat: 35.0093, lng: 135.6670, desc: "Famous towering bamboo path." },
           { title: "Tenryu-ji Temple", lat: 35.0084, lng: 135.6737, desc: "Zen temple with beautiful gardens." }
@@ -170,6 +187,7 @@
       {
         date: "Nov 21",
         title: "Fushimi Inari",
+        travel: "Take the <b>JR Nara Line</b> from Kyoto Station and get off at <b>Inari Station</b>. Make sure to take a Local train, as Express trains skip this stop! The grand torii gate entrance is directly across the street from the station.",
         places: [
           { title: "Fushimi Inari Taisha", lat: 34.9671, lng: 135.7726, desc: "Thousands of vermilion torii gates." }
         ]
@@ -177,6 +195,7 @@
       {
         date: "Nov 22",
         title: "Depart from Osaka",
+        travel: "Take the <b>JR Haruka Limited Express</b> directly from Kyoto Station to <b>Kansai International Airport (KIX)</b>. The ride takes about 80 minutes.",
         places: [
           { title: "Kansai International Airport (KIX)", lat: 34.4320, lng: 135.2304, desc: "Fly home." }
         ]
@@ -221,7 +240,6 @@
         day.places.forEach((place) => {
           const position = { lat: place.lat, lng: place.lng };
           
-          // Add marker to map
           const marker = new google.maps.Marker({
             position: position,
             map: map,
@@ -232,13 +250,11 @@
           dayBounds.extend(position);
           markers.push(marker);
 
-          // Map marker click event
           marker.addListener("click", () => {
             infoWindow.setContent(`<b>${place.title}</b><br>${place.desc}`);
             infoWindow.open(map, marker);
           });
 
-          // Add Place Item to the dropdown list
           const placeItem = document.createElement('li');
           placeItem.className = 'place-item';
           placeItem.innerHTML = `
@@ -246,9 +262,8 @@
             <p>${place.desc}</p>
           `;
           
-          // Click event for a specific place in the sidebar
           placeItem.onclick = (e) => {
-            e.stopPropagation(); // Prevents the day accordion from toggling when clicking a place
+            e.stopPropagation(); 
             map.panTo(position);
             map.setZoom(16);
             infoWindow.setContent(`<b>${place.title}</b><br>${place.desc}`);
@@ -258,23 +273,24 @@
           placesList.appendChild(placeItem);
         });
 
-        // Click event to toggle the Day accordion
+        // Create Transit Info block
+        const travelDiv = document.createElement('div');
+        travelDiv.className = 'travel-info';
+        travelDiv.innerHTML = `<h4>🚆 Transit Notes</h4><p>${day.travel}</p>`;
+
         dayHeader.onclick = () => {
-          // Close other open days
           document.querySelectorAll('.day-card').forEach(card => {
             if (card !== dayCard) card.classList.remove('active');
           });
           
-          // Toggle this day
           const isActive = dayCard.classList.contains('active');
           if (isActive) {
             dayCard.classList.remove('active');
-            map.fitBounds(globalBounds); // Zoom back out if closing
+            map.fitBounds(globalBounds);
           } else {
             dayCard.classList.add('active');
-            map.fitBounds(dayBounds); // Zoom to this day's locations
+            map.fitBounds(dayBounds);
             
-            // Adjust zoom if the day only has one place
             if (day.places.length === 1) {
                setTimeout(() => map.setZoom(15), 50);
             }
@@ -283,10 +299,10 @@
 
         dayCard.appendChild(dayHeader);
         dayCard.appendChild(placesList);
+        dayCard.appendChild(travelDiv);
         sidebar.appendChild(dayCard);
       });
 
-      // Fit map to show all markers initially
       map.fitBounds(globalBounds);
     }
   </script>
