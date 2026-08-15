@@ -99,6 +99,7 @@
     let map;
     let markers = [];
     let infoWindow;
+    let geocoder;
 
     const itinerary = [
       {
@@ -106,7 +107,7 @@
         title: "Arrive in Tokyo & Shinjuku",
         travel: "When arriving at Shinjuku Station, follow signs for the <b>East Exit (Higashi-guchi)</b>. It is the shortest and most direct walk to Kabukicho and will keep you from getting lost in the massive station complex.",
         places: [
-          { title: "Tokyo Airbnb", lat: 35.6974, lng: 139.7038, desc: "2-chōme-2-21 Kabukichō, Shinjuku City." },
+          { title: "Tokyo Airbnb", address: "2-chōme-2-21 Kabukichō, Shinjuku City, Tokyo 160-0021, Japan", desc: "Our home base for Tokyo." },
           { title: "Tokyo Metropolitan Government Building", lat: 35.6896, lng: 139.6921, desc: "Free observation deck for great city views." },
           { title: "Conbini Snack Run", lat: 35.6940, lng: 139.7020, desc: "Hit the local Family Mart, 7-11, and Lawson near the hotel." },
           { title: "Golden Gai", lat: 35.6938, lng: 139.7046, desc: "Narrow alleys packed with tiny bars for evening drinks." }
@@ -153,7 +154,7 @@
         title: "Transit to Kyoto & Downtown",
         travel: "Take the JR Chuo Line from Shinjuku to Tokyo Station to catch the Tokaido Shinkansen. You can use your smart-EX app to seamlessly manage and scan your Shinkansen tickets. Disembark at Kyoto Station and hop on the <b>Karasuma Subway Line</b> to Gojo Station, which is very close to your Airbnb.",
         places: [
-          { title: "Kyoto Airbnb", lat: 34.9980, lng: 135.7630, desc: "452 Karamonochō, Shimogyo Ward." },
+          { title: "Kyoto Airbnb", address: "452 Karamonochō, Shimogyo Ward, Kyoto, 600-8197, Japan", desc: "Check-in at our Kyoto home base." },
           { title: "Nishiki Market", lat: 35.0050, lng: 135.7649, desc: "Famous narrow street with over 100 food stalls." }
         ]
       },
@@ -211,6 +212,7 @@
       });
 
       infoWindow = new google.maps.InfoWindow();
+      geocoder = new google.maps.Geocoder();
       const globalBounds = new google.maps.LatLngBounds();
       const sidebar = document.getElementById('itinerary-list');
 
@@ -219,7 +221,6 @@
         const dayCard = document.createElement('div');
         dayCard.className = 'day-card';
         
-        // Create the clickable header for the day
         const dayHeader = document.createElement('div');
         dayHeader.className = 'day-header';
         dayHeader.innerHTML = `
@@ -230,47 +231,58 @@
           <div class="dropdown-icon">▼</div>
         `;
 
-        // Create the container for the specific places
         const placesList = document.createElement('ul');
         placesList.className = 'places-list';
 
         const dayBounds = new google.maps.LatLngBounds(); 
 
-        // Loop through the places within the day
         day.places.forEach((place) => {
-          const position = { lat: place.lat, lng: place.lng };
-          
-          const marker = new google.maps.Marker({
-            position: position,
-            map: map,
-            title: place.title
-          });
-          
-          globalBounds.extend(position);
-          dayBounds.extend(position);
-          markers.push(marker);
-
-          marker.addListener("click", () => {
-            infoWindow.setContent(`<b>${place.title}</b><br>${place.desc}`);
-            infoWindow.open(map, marker);
-          });
-
           const placeItem = document.createElement('li');
           placeItem.className = 'place-item';
           placeItem.innerHTML = `
             <h4>${place.title}</h4>
             <p>${place.desc}</p>
           `;
-          
-          placeItem.onclick = (e) => {
-            e.stopPropagation(); 
-            map.panTo(position);
-            map.setZoom(16);
-            infoWindow.setContent(`<b>${place.title}</b><br>${place.desc}`);
-            infoWindow.open(map, marker);
-          };
-          
           placesList.appendChild(placeItem);
+
+          const handleMarkerSetup = (position) => {
+            const marker = new google.maps.Marker({
+              position: position,
+              map: map,
+              title: place.title
+            });
+            
+            globalBounds.extend(position);
+            dayBounds.extend(position);
+            markers.push(marker);
+
+            marker.addListener("click", () => {
+              infoWindow.setContent(`<b>${place.title}</b><br>${place.desc}`);
+              infoWindow.open(map, marker);
+            });
+
+            placeItem.onclick = (e) => {
+              e.stopPropagation(); 
+              map.panTo(position);
+              map.setZoom(16);
+              infoWindow.setContent(`<b>${place.title}</b><br>${place.desc}`);
+              infoWindow.open(map, marker);
+            };
+          };
+
+          // Check if place uses an address or lat/lng
+          if (place.address) {
+            geocoder.geocode({ address: place.address }, (results, status) => {
+              if (status === "OK") {
+                handleMarkerSetup(results[0].geometry.location);
+                map.fitBounds(globalBounds); // Adjust map view once address is found
+              } else {
+                console.error("Could not find address: " + place.address);
+              }
+            });
+          } else {
+            handleMarkerSetup({ lat: place.lat, lng: place.lng });
+          }
         });
 
         // Create Transit Info block
